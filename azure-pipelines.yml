@@ -19,4 +19,6 @@ steps:
     jdkArchitectureOption: 'x64'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
+    goals: 'package  deploy:deploy-file'
+    mavenAuthenticateFeed: true
+    options: '-X -P azure_artifacts -Dpackaging="jar" -DrepositoryId="pueba-artifactory" -Durl="https://pkgs.dev.azure.com/lmgomez0520-indra/devops/_packaging/pueba-artifactory/maven/v1" -DgroupId="com.example" -DartifactId="demo-poi" -Dversion="0.0.1-SNAPSHOT" -Dfile="$(System.DefaultWorkingDirectory)/target/demo-poi-0.0.1-SNAPSHOT.jar"'
