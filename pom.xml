@@ -62,7 +62,7 @@
 					<enabled>true</enabled>
 				</snapshots>
 			</repository>
-		</repositories>		
+		</repositories>
 			<build>
 				<plugins>
 					<plugin>
@@ -77,8 +77,34 @@
 							</excludes>
 						</configuration>
 					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.8.1</version>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.2.0</version>
+						<configuration>
+							<encoding>UTF-8</encoding>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.3.0</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
-			</build>
+			</build>			
 		</profile>
 	</profiles>
 
