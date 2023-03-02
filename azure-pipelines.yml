@@ -4,21 +4,52 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
 trigger:
-- main
+- feature/*
 
-pool:
-  vmImage: ubuntu-latest
+variables:
+  buildConfiguration: 'Release'
 
-steps:
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.11'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package  deploy:deploy-file'
-    mavenAuthenticateFeed: true
-    options: '-X -P azure_artifacts -Dpackaging="jar" -DrepositoryId="pueba-artifactory" -Durl="https://pkgs.dev.azure.com/lmgomez0520-indra/devops/_packaging/pueba-artifactory/maven/v1" -DgroupId="com.example" -DartifactId="demo-poi" -Dversion="0.0.1-SNAPSHOT" -Dfile="$(System.DefaultWorkingDirectory)/target/demo-poi-0.0.1-SNAPSHOT.jar"'
+stages:
+- stage: 'build'
+  displayName: 'Build the applicacion' 
+  jobs:
+   - job: 'build'
+     pool:
+       vmImage: ubuntu-latest
+       
+     steps: 
+     - task: Maven@3
+       inputs:
+         mavenPomFile: 'pom.xml'
+         mavenOptions: '-Xmx3072m'
+         javaHomeOption: 'JDKVersion'
+         jdkVersionOption: '1.11'
+         jdkArchitectureOption: 'x64'
+         publishJUnitResults: true
+         testResultsFiles: '**/surefire-reports/TEST-*.xml'
+         mavenAuthenticateFeed: true
+         goals: 'package'
+         options: '-X -P azure_artifacts'
+
+     - task: CopyFiles@1
+       displayName: 'Coppy jar to pipeline artifact'
+       inputs:
+         SourceFolder: '$(System.DefaultWorkingDirectory)/target/'
+         Contents: '*.jar'
+         TargetFolder: '$(build.artifactstagingdirectory)/$(buildConfiguration)'
+         CleanTargetFolder: true
+         
+     - task: ArchiveFiles@2
+       inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/target/' 
+        includeRootFolder: true 
+        archiveType: 'zip' # Options: zip, 7z, tar, wim
+        tarCompression: 'gz' # Optional. Options: gz, bz2, xz, none
+        archiveFile: '$(build.artifactstagingdirectory)/$(Build.BuildId).zip' 
+        replaceExistingArchive: true 
+        verbose: # Optional
+    
+
+     - task: PublishBuildArtifacts@1
+       displayName: 'Publish Artifact: released_package'
+       condition: succeeded()
